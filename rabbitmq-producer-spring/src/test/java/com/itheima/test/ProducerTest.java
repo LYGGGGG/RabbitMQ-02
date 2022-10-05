@@ -65,8 +65,7 @@ public class ProducerTest {
      * 1. 如果消息没有路由到Queue，则丢弃消息（默认）
      * 2. 如果消息没有路由到Queue，返回给消息发送方ReturnCallBack
      */
-
-    /*@Test
+    @Test
     public void testReturn() {
 
         //设置交换机处理失败消息的模式
@@ -74,17 +73,16 @@ public class ProducerTest {
 
         //2.设置ReturnCallBack
         rabbitTemplate.setReturnCallback(new RabbitTemplate.ReturnCallback() {
-            *//**
-             *
-             * @param message   消息对象
-             * @param replyCode 错误码
-             * @param replyText 错误信息
-             * @param exchange  交换机
+            /*
+             * @param message    消息对象
+             * @param replyCode  错误码
+             * @param replyText  错误信息
+             * @param exchange   交换机
              * @param routingKey 路由键
-             *//*
+             */
             @Override
             public void returnedMessage(Message message, int replyCode, String replyText, String exchange, String routingKey) {
-                System.out.println("return 执行了....");
+                System.out.println("失败，return 执行了....");
 
                 System.out.println(message);
                 System.out.println(replyCode);
@@ -96,45 +94,43 @@ public class ProducerTest {
             }
         });
 
-
         //3. 发送消息
-        rabbitTemplate.convertAndSend("test_exchange_confirm", "confirm", "message confirm....");
-    }*/
-
+        rabbitTemplate.convertAndSend("test_exchange_confirm", "confirm", "message confirm....03");
+    }
 
     @Test
     public void testSend() {
 
-
         for (int i = 0; i < 10; i++) {
             // 发送消息
-            rabbitTemplate.convertAndSend("test_exchange_confirm", "confirm", "message confirm....");
+            rabbitTemplate.convertAndSend("test_exchange_confirm", "confirm", "message confirm...." + i);
         }
     }
 
 
     /**
      * TTL:过期时间
-     *  1. 队列统一过期
-     *
-     *  2. 消息单独过期
-     *
-     *
+     * 1. 队列统一过期
+     * <p>
+     * 2. 消息单独过期
+     * <p>
+     * <p>
      * 如果设置了消息的过期时间，也设置了队列的过期时间，它以时间短的为准。
      * 队列过期后，会将队列所有消息全部移除。
      * 消息过期后，只有消息在队列顶端，才会判断其是否过期(移除掉)
-     *
      */
+
     @Test
     public void testTtl() {
-
-
-      /*  for (int i = 0; i < 10; i++) {
+        /**
+         * 整个队列消息ttl
+         */
+        /*for (int i = 0; i < 10; i++) {
             // 发送消息
             rabbitTemplate.convertAndSend("test_exchange_ttl", "ttl.hehe", "message ttl....");
         }*/
 
-      // 消息后处理对象，设置一些消息的参数信息
+        // 消息后处理对象，设置一些消息的参数信息
         MessagePostProcessor messagePostProcessor = new MessagePostProcessor() {
 
             @Override
@@ -146,54 +142,59 @@ public class ProducerTest {
             }
         };
 
-
         //消息单独过期
         //rabbitTemplate.convertAndSend("test_exchange_ttl", "ttl.hehe", "message ttl....",messagePostProcessor);
-
-
         for (int i = 0; i < 10; i++) {
-            if(i == 5){
+            if (i == 5) {
                 //消息单独过期
-                rabbitTemplate.convertAndSend("test_exchange_ttl", "ttl.hehe", "message ttl....",messagePostProcessor);
-            }else{
+                rabbitTemplate.convertAndSend("test_exchange_ttl", "ttl.hehe", "message ttl...." + i, messagePostProcessor);
+            } else {
                 //不过期的消息
-                rabbitTemplate.convertAndSend("test_exchange_ttl", "ttl.hehe", "message ttl....");
-
+                rabbitTemplate.convertAndSend("test_exchange_ttl", "ttl.hehe", "message ttl...." + i);
             }
-
         }
-
-
     }
 
 
     /**
      * 发送测试死信消息：
-     *  1. 过期时间
-     *  2. 长度限制
-     *  3. 消息拒收
+     * 1. 过期时间
+     * 2. 长度限制
+     * 3. 消息拒收
      */
-    @Test
-    public void testDlx(){
+    /*@Test
+    public void testDlx() {
         //1. 测试过期时间，死信消息
         //rabbitTemplate.convertAndSend("test_exchange_dlx","test.dlx.haha","我是一条消息，我会死吗？");
 
         //2. 测试长度限制后，消息死信
-       /* for (int i = 0; i < 20; i++) {
+        for (int i = 0; i < 20; i++) {
             rabbitTemplate.convertAndSend("test_exchange_dlx","test.dlx.haha","我是一条消息，我会死吗？");
-        }*/
+        }
 
         //3. 测试消息拒收
-        rabbitTemplate.convertAndSend("test_exchange_dlx","test.dlx.haha","我是一条消息，我会死吗？");
+        rabbitTemplate.convertAndSend("test_exchange_dlx", "test.dlx.haha", "我是一条消息，我会死吗？");
 
+    }*/
+
+    /**
+     * 测试死信
+     * @throws InterruptedException
+     */
+    @Test
+    public void testDlx() throws InterruptedException {
+//        rabbitTemplate.convertAndSend("exchange_dlx_01","test.dlx.haha","测试消息,dlx....");
+        for (int i = 0; i < 20; i++) {
+            Thread.sleep(1000);
+            rabbitTemplate.convertAndSend("exchange_dlx_01", "test.dlx.haha", "测试消息,dlx...." + i);
+        }
     }
 
 
-
     @Test
-    public  void testDelay() throws InterruptedException {
+    public void testDelay() throws InterruptedException {
         //1.发送订单消息。 将来是在订单系统中，下单成功后，发送消息
-        rabbitTemplate.convertAndSend("order_exchange","order.msg","订单信息：id=1,time=2019年8月17日16:41:47");
+        rabbitTemplate.convertAndSend("order_exchange", "order.msg", "订单信息：id=1,time=2019年8月17日16:41:47");
 
 
         /*//2.打印倒计时10秒

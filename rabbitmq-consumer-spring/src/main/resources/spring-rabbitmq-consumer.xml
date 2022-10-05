@@ -19,18 +19,22 @@
                                password="${rabbitmq.password}"
                                virtual-host="${rabbitmq.virtual-host}"/>
 
-
-    <context:component-scan base-package="com.itheima.listener" />
+    <context:component-scan base-package="com.itheima.listener"/>
 
     <!--定义监听器容器-->
-    <rabbit:listener-container connection-factory="connectionFactory" acknowledge="manual" prefetch="1" >
-       <!-- <rabbit:listener ref="ackListener" queue-names="test_queue_confirm"></rabbit:listener>-->
-       <!-- <rabbit:listener ref="qosListener" queue-names="test_queue_confirm"></rabbit:listener>-->
-        <!--定义监听器，监听正常队列-->
-        <!--<rabbit:listener ref="dlxListener" queue-names="test_queue_dlx"></rabbit:listener>-->
-
-        <!--延迟队列效果实现：  一定要监听的是 死信队列！！！-->
-        <rabbit:listener ref="orderListener" queue-names="order_queue_dlx"></rabbit:listener>
+    <rabbit:listener-container connection-factory="connectionFactory" acknowledge="manual" >
+        <rabbit:listener ref="dlxListener02" queue-names="queue_dlx_01"/>
     </rabbit:listener-container>
+
+    <!--
+       <rabbit:listener-container connection-factory="connectionFactory" acknowledge="manual" prefetch="1" >
+          &lt;!&ndash; <rabbit:listener ref="ackListener" queue-names="test_queue_confirm"></rabbit:listener>&ndash;&gt;
+          &lt;!&ndash; <rabbit:listener ref="qosListener" queue-names="test_queue_confirm"></rabbit:listener>&ndash;&gt;
+           &lt;!&ndash;定义监听器，监听正常队列&ndash;&gt;
+           &lt;!&ndash;<rabbit:listener ref="dlxListener" queue-names="test_queue_dlx"></rabbit:listener>&ndash;&gt;
+
+           &lt;!&ndash;延迟队列效果实现：  一定要监听的是 死信队列！！！&ndash;&gt;
+           <rabbit:listener ref="orderListener" queue-names="order_queue_dlx"></rabbit:listener>
+       </rabbit:listener-container>-->
 
 </beans>
